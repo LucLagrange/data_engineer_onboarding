@@ -201,7 +201,6 @@ def main() -> None:
     start = timer()
     # Validates the environment variables
     if not validate_config(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY):
-        logging.error("Configuration validation failed. Exiting.")
         return
     data = get_current_weather(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY)
 
