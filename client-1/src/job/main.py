@@ -2,13 +2,21 @@ import requests
 import logging
 import os
 import datetime
+import psycopg
 from typing import Any, Dict, Optional
 from timeit import default_timer as timer
 
-# Configuration with type hints
-OPEN_WEATHER_MAP_API_KEY: Optional[str] = os.getenv("OPEN_WEATHER_MAP_API_KEY")
-LATITUDE: Optional[str] = os.getenv("LATITUDE")
-LONGITUDE: Optional[str] = os.getenv("LONGITUDE")
+# Script Configuration
+OPEN_WEATHER_MAP_API_KEY = os.getenv("OPEN_WEATHER_MAP_API_KEY").strip()
+LATITUDE = os.getenv("LATITUDE").strip()
+LONGITUDE = os.getenv("LONGITUDE").strip()
+
+# DB Variables
+DB_HOST = os.getenv("DB_HOST").strip()
+DB_USER = os.getenv("DB_USER").strip()
+DB_PASS = os.getenv("DB_PASS").strip()
+DB_NAME = os.getenv("DB_NAME").strip()
+DB_PORT = os.getenv("DB_PORT").strip()
 
 # Configure the logging module
 logging.basicConfig(
@@ -150,19 +158,57 @@ def extract_weather_information_from_json(data: Dict[str, Any]) -> Dict[str, Any
     return weather_info
 
 
+def save_to_db(info: Dict[str, Any]) -> bool:
+    """Inserts processed weather data into the PostgreSQL.
+
+    Args:
+        info: Dictionary containing the weather data.
+
+    Returns:
+        bool: True if the insertion was successful, False otherwise.
+    """
+    conn_str = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+    query = """
+    INSERT INTO weather_metrics (weather, description, temperature, humidity, observed_at)
+    VALUES (%s, %s, %s, %s, %s);
+    """
+
+    try:
+        with psycopg.connect(conn_str) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    query,
+                    (
+                        info["weather"],
+                        info["description"],
+                        info["temperature"],
+                        info["humidity"],
+                        info["date"],
+                    ),
+                )
+        logging.info("Successfully ingested data into Postgres.")
+        return True
+    except psycopg.Error as e:
+        logging.error("Database insertion failed: %s", e)
+        return False
+
+
 def main() -> None:
     """
     Main execution logic to fetch and display weather information.
     """
     start = timer()
+    # Validates the environment variables
     if not validate_config(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY):
         logging.error("Configuration validation failed. Exiting.")
         return
     data = get_current_weather(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY)
 
-    # Check if data exists before extraction to avoid errors
+    # Checks if data exists before extraction
     if data:
         weather_information = extract_weather_information_from_json(data)
+        save_to_db(weather_information)
 
     end = timer()
     duration = round(end - start, 1)
