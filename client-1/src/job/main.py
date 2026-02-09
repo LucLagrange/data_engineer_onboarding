@@ -159,7 +159,14 @@ def extract_weather_information_from_json(data: Dict[str, Any]) -> Dict[str, Any
 
 
 def save_to_db(info: Dict[str, Any]) -> bool:
-    """Insert the weather data into PostgreSQL 18."""
+    """Inserts processed weather data into the PostgreSQL.
+
+    Args:
+        info: Dictionary containing the weather data.
+
+    Returns:
+        bool: True if the insertion was successful, False otherwise.
+    """
     conn_str = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
     query = """
@@ -192,12 +199,13 @@ def main() -> None:
     Main execution logic to fetch and display weather information.
     """
     start = timer()
+    # Validates the environment variables
     if not validate_config(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY):
         logging.error("Configuration validation failed. Exiting.")
         return
     data = get_current_weather(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY)
 
-    # Check if data exists before extraction to avoid errors
+    # Checks if data exists before extraction
     if data:
         weather_information = extract_weather_information_from_json(data)
         save_to_db(weather_information)
