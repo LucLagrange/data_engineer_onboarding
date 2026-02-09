@@ -61,3 +61,11 @@ For the second method (dlthub, different schema):
 ```SQL
 SELECT * FROM raw_weather_data.weather_report;
 ```
+
+## To improve/finish
+
+- Try to load both methods on same schema and table with a "source" column to differentiate.
+- Better timestamp handling (local vs utc)
+- Orchestration with Cron or Airflow
+- Smaller Dockerfile (Postgres-alpine?) and smarter build (see best practices)
+- Try with Duckdb!
