@@ -74,11 +74,14 @@ def get_current_weather(
     logging.info("Fetching the weather information for %s, %s", LATITUDE, LONGITUDE)
 
     try:
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, timeout=10)
+
+        response.raise_for_status()
+
         data: Dict[str, Any] = response.json()
         logging.info("Succesfuly fetched weather information")
         logging.info("API response: %s", data)
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.HTTPError as e:
         logging.error("Error fetching the weather data: %s", e)
         return None
 
