@@ -15,7 +15,10 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def validate_config(lat: Optional[str], lon: Optional[str], api_key: Optional[str]) -> bool:
+
+def validate_config(
+    lat: Optional[str], lon: Optional[str], api_key: Optional[str]
+) -> bool:
     """
     Check that latitude, longitude, and API key are present.
 
@@ -28,18 +31,24 @@ def validate_config(lat: Optional[str], lon: Optional[str], api_key: Optional[st
         True if all variables are present, False otherwise.
     """
     if not all([lat, lon, api_key]):
-        missing = [name for name, val in 
-                   {"LATITUDE": lat, "LONGITUDE": lon, "API_KEY": api_key}.items() 
-                   if not val]
+        missing = [
+            name
+            for name, val in {
+                "LATITUDE": lat,
+                "LONGITUDE": lon,
+                "API_KEY": api_key,
+            }.items()
+            if not val
+        ]
         logging.error("Missing required configuration: %s", ", ".join(missing))
         return False
     return True
 
 
 def get_current_weather(
-    LATITUDE: Optional[str], 
-    LONGITUDE: Optional[str], 
-    OPEN_WEATHER_MAP_API_KEY: Optional[str]
+    LATITUDE: Optional[str],
+    LONGITUDE: Optional[str],
+    OPEN_WEATHER_MAP_API_KEY: Optional[str],
 ) -> Optional[Dict[str, Any]]:
     """
     Extracts the current weather from the OpenWeatherMap API.
@@ -146,12 +155,12 @@ def main() -> None:
     if not validate_config(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY):
         return
     data = get_current_weather(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY)
-    
+
     # Check if data exists before extraction to avoid errors
     if data:
         weather_information = extract_weather_information_from_json(data)
         print(weather_information)
-    
+
     end = timer()
     duration = round(end - start, 1)
     logging.info("The script took %ss to complete", duration)

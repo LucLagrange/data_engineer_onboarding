@@ -1,15 +1,16 @@
+---
 services:
-  weather_information_export:
-    image: weather_information_export:0.1
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
+    weather_information_export:
+        image: weather_information_export:0.1
+        build:
+            context: .
+            dockerfile: Dockerfile
+        environment:
       # API Key loaded with export
-      OPEN_WEATHER_MAP_API_KEY: $OPEN_WEATHER_MAP_API_KEY
+            OPEN_WEATHER_MAP_API_KEY: $OPEN_WEATHER_MAP_API_KEY
       # Add Converteo's coordinates
-      LATITUDE: 48.83174178400599
-      LONGITUDE: 2.3885886413001893
-    volumes:
+            LATITUDE: 48.83174178400599
+            LONGITUDE: 2.3885886413001893
+        volumes:
       # Source code
-      - ./src/job:/opt/program/job
+            - ./src/job:/opt/program/job
