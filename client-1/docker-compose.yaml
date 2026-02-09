@@ -1,0 +1,13 @@
+services:
+  weather_information_export:
+    image: weather_information_export:0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      OPEN_WEATHER_MAP_API_KEY: $OPEN_WEATHER_MAP_API_KEY
+      LATITUDE: $LATITUDE
+      LONGITUDE: $LONGITUDE
+    volumes:
+      # Source code
+      - ./src/job:/opt/program/job
