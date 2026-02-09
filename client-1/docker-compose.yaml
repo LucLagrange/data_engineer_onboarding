@@ -5,9 +5,11 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
+      # API Key loaded with export
       OPEN_WEATHER_MAP_API_KEY: $OPEN_WEATHER_MAP_API_KEY
-      LATITUDE: $LATITUDE
-      LONGITUDE: $LONGITUDE
+      # Add Converteo's coordinates
+      LATITUDE: 48.83174178400599
+      LONGITUDE: 2.3885886413001893
     volumes:
       # Source code
       - ./src/job:/opt/program/job
