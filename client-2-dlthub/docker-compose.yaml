@@ -1,0 +1,26 @@
+---
+services:
+    weather_information_export:
+        image: weather_information_export:0.1
+        build:
+            context: .
+            dockerfile: Dockerfile
+
+        environment:
+      # API Key loaded with export
+            OPEN_WEATHER_MAP_API_KEY: $OPEN_WEATHER_MAP_API_KEY
+      # Converteo
+            LATITUDE: 48.83174178400599
+            LONGITUDE: 2.3885886413001893
+
+      # dlt connection string
+            DESTINATION__POSTGRES__CREDENTIALS: postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+        volumes:
+            - ./src/job:/opt/program/job
+        networks:
+            - weather_network
+        command: python /opt/program/job/main.py
+
+networks:
+    weather_network:
+        external: true

@@ -34,6 +34,12 @@ docker compose up
 
 2. dltHub method
 
+Create the connection string: 
+
+```bash
+export DESTINATION__POSTGRES__CREDENTIALS="postgresql://$DB_USER:$DB_PASS@$DB_HOST:$DB_PORT/$DB_NAME"
+```
+
 ```bash
 cd client-2
 docker compose build
