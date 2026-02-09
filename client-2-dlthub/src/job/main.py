@@ -3,8 +3,13 @@ import requests
 import os
 import logging
 from datetime import datetime, timezone
-from typing import Iterator, Dict, Any
+from typing import Iterator, Dict, Any, Optional
 from timeit import default_timer as timer
+
+# Script Configuration
+OPEN_WEATHER_MAP_API_KEY = os.getenv("OPEN_WEATHER_MAP_API_KEY", "").strip()
+LATITUDE = os.getenv("LATITUDE", "").strip()
+LONGITUDE = os.getenv("LONGITUDE", "").strip()
 
 # Configure the logging module
 logging.basicConfig(
@@ -12,15 +17,29 @@ logging.basicConfig(
 )
 
 
-def validate_config() -> bool:
-    """Check that all required environment variables are present.
+def validate_config(
+    lat: Optional[str], lon: Optional[str], api_key: Optional[str]
+) -> bool:
+    """Check that latitude, longitude, and API key are present.
+
+    Args:
+        lat: Latitude coordinate string.
+        lon: Longitude coordinate string.
+        api_key: OpenWeatherMap API key string.
 
     Returns:
         bool: True if all variables are present, False otherwise.
     """
-    keys = ["LATITUDE", "LONGITUDE", "OPEN_WEATHER_MAP_API_KEY"]
-    missing = [k for k in keys if not os.getenv(k)]
-    if missing:
+    if not all([lat, lon, api_key]):
+        missing = [
+            name
+            for name, val in {
+                "LATITUDE": lat,
+                "LONGITUDE": lon,
+                "API_KEY": api_key,
+            }.items()
+            if not val
+        ]
         logging.error("Missing required configuration: %s", ", ".join(missing))
         return False
     return True
@@ -35,16 +54,14 @@ def weather_resource() -> Iterator[Dict[str, Any]]:
     """
     url = "https://api.openweathermap.org/data/2.5/weather"
     params = {
-        "lat": os.getenv("LATITUDE", "").strip(),
-        "lon": os.getenv("LONGITUDE", "").strip(),
-        "appid": os.getenv("OPEN_WEATHER_MAP_API_KEY", "").strip(),
+        "lat": LATITUDE,
+        "lon": LONGITUDE,
+        "appid": OPEN_WEATHER_MAP_API_KEY,
         "units": "metric",
         "lang": "en",
     }
 
-    logging.info(
-        "Fetching weather information for %s, %s", params["lat"], params["lon"]
-    )
+    logging.info("Fetching weather information for %s, %s", LATITUDE, LONGITUDE)
 
     try:
         response = requests.get(url, params=params, timeout=10)
@@ -70,11 +87,11 @@ def main() -> None:
     """Main execution logic to run the dlt ingestion pipeline."""
     start = timer()
 
-    if not validate_config():
+    # Validates the environment variables
+    if not validate_config(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY):
         return
 
     # Initialize the dlt pipeline
-    # Destination credentials are pulled from DESTINATION__POSTGRES__CREDENTIALS
     pipeline = dlt.pipeline(
         pipeline_name="weather_ingestion",
         destination="postgres",
