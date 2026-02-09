@@ -54,8 +54,8 @@ def get_current_weather(
     Extracts the current weather from the OpenWeatherMap API.
 
     Args:
-        LATITUDE: Latitude coordinate for the location.
-        LONGITUDE: Longitude coordinate for the location.
+        LATITUDE: Latitude coordinate for the location. Hard-coded in the docker-compose.yaml file
+        LONGITUDE: Longitude coordinate for the location. Hard-coded in the docker-compose.yaml file
         OPEN_WEATHER_MAP_API_KEY: API key for authentication.
 
     Returns:
@@ -80,8 +80,8 @@ def get_current_weather(
 
         data: Dict[str, Any] = response.json()
         logging.info("Succesfuly fetched weather information")
-        logging.info("API response: %s", data)
-    except requests.exceptions.HTTPError as e:
+        # logging.info("API response: %s", data)
+    except requests.exceptions.RequestException as e:
         logging.error("Error fetching the weather data: %s", e)
         return None
 
@@ -156,13 +156,13 @@ def main() -> None:
     """
     start = timer()
     if not validate_config(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY):
+        logging.error("Configuration validation failed. Exiting.")
         return
     data = get_current_weather(LATITUDE, LONGITUDE, OPEN_WEATHER_MAP_API_KEY)
 
     # Check if data exists before extraction to avoid errors
     if data:
         weather_information = extract_weather_information_from_json(data)
-        print(weather_information)
 
     end = timer()
     duration = round(end - start, 1)
