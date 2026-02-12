@@ -12,6 +12,14 @@ Write all your variables in a .env file and use the following command to export 
 export $(grep -v '^#' .env | xargs)
 ```
 
+### 2. Create the Network
+
+Create the bridge network to allow our containers to talk to each other:
+
+```bash
+docker network create weather_network
+```
+
 ### 2. Build and run the Postgres container
 
 ```bash
