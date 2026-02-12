@@ -20,7 +20,7 @@ Create the bridge network to allow our containers to talk to each other:
 docker network create weather_network
 ```
 
-### 2. Build and run the Postgres container
+### 3. Build and run the Postgres container
 
 ```bash
 cd server/
@@ -28,7 +28,7 @@ docker compose build
 docker compose up -d
 ```
 
-### 3. Build and run the fetch & export containers  
+### 4. Build and run the fetch & export containers  
 
 Depending on which method you want to try:
 
@@ -48,7 +48,7 @@ docker compose build
 docker compose up
 ```
 
-### 4. Check the rows inserted to Postgres
+### 5. Check the rows inserted to Postgres
 
 1. Jump into the container:
 
